@@ -18759,3 +18759,27 @@ File Path                                              PID    Runtime      # DAG
 /home/airflow/gcs/dags/dag_archive_old_data.py                                  1           0  0.21s           2025-12-15T08:12:23
 /home/airflow/gcs/dags/dag_spark_compute_kpis.py                                1           0  0.21s           2025-12-15T08:12:19
 ================================================================================
+[2025-12-15T08:13:01.254+0000] {manager.py:851} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                              PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+-----------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/home/airflow/gcs/dags/dag_spark_analytics.py                                   0           1  0.10s           2025-12-15T08:12:49
+/home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py                           1           0  0.32s           2025-12-15T08:12:49
+/home/airflow/gcs/dags/dag_spark_kpi_computation.py                             1           0  0.33s           2025-12-15T08:12:54
+/home/airflow/gcs/dags/dag_archive_old_data.py                                  1           0  0.37s           2025-12-15T08:12:54
+/home/airflow/gcs/dags/dag_spark_compute_kpis.py                                1           0  0.28s           2025-12-15T08:12:49
+================================================================================
+[2025-12-15T08:13:31.703+0000] {manager.py:851} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                              PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+-----------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/home/airflow/gcs/dags/dag_spark_analytics.py                                   0           1  0.07s           2025-12-15T08:13:20
+/home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py                           1           0  0.28s           2025-12-15T08:13:20
+/home/airflow/gcs/dags/dag_spark_kpi_computation.py                             1           0  0.30s           2025-12-15T08:13:24
+/home/airflow/gcs/dags/dag_archive_old_data.py                                  1           0  0.30s           2025-12-15T08:13:24
+/home/airflow/gcs/dags/dag_spark_compute_kpis.py                                1           0  0.22s           2025-12-15T08:13:20
+================================================================================

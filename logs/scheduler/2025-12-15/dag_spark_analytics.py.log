@@ -13508,3 +13508,31 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'pyspark'
 [2025-12-15T08:12:19.221+0000] {processor.py:755} WARNING - No viable dags retrieved from /home/airflow/gcs/dags/dag_spark_analytics.py
 [2025-12-15T08:12:19.251+0000] {processor.py:175} INFO - Processing /home/airflow/gcs/dags/dag_spark_analytics.py took 0.052 seconds
+[2025-12-15T08:12:49.851+0000] {processor.py:153} INFO - Started process (PID=7701) to work on /home/airflow/gcs/dags/dag_spark_analytics.py
+[2025-12-15T08:12:49.853+0000] {processor.py:743} INFO - Processing file /home/airflow/gcs/dags/dag_spark_analytics.py for tasks to queue
+[2025-12-15T08:12:49.856+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:12:49.856+0000] {dagbag.py:538} INFO - Filling up the DagBag from /home/airflow/gcs/dags/dag_spark_analytics.py
+[2025-12-15T08:12:49.870+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:12:49.868+0000] {dagbag.py:343} ERROR - Failed to import: /home/airflow/gcs/dags/dag_spark_analytics.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.7/site-packages/airflow/models/dagbag.py", line 339, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 728, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/airflow/gcs/dags/dag_spark_analytics.py", line 4, in <module>
+    from pyspark.sql import SparkSession
+ModuleNotFoundError: No module named 'pyspark'
+[2025-12-15T08:12:49.870+0000] {processor.py:755} WARNING - No viable dags retrieved from /home/airflow/gcs/dags/dag_spark_analytics.py
+[2025-12-15T08:12:49.908+0000] {processor.py:175} INFO - Processing /home/airflow/gcs/dags/dag_spark_analytics.py took 0.062 seconds
+[2025-12-15T08:13:20.583+0000] {processor.py:153} INFO - Started process (PID=7706) to work on /home/airflow/gcs/dags/dag_spark_analytics.py
+[2025-12-15T08:13:20.586+0000] {processor.py:743} INFO - Processing file /home/airflow/gcs/dags/dag_spark_analytics.py for tasks to queue
+[2025-12-15T08:13:20.587+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:13:20.586+0000] {dagbag.py:538} INFO - Filling up the DagBag from /home/airflow/gcs/dags/dag_spark_analytics.py
+[2025-12-15T08:13:20.598+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:13:20.597+0000] {dagbag.py:343} ERROR - Failed to import: /home/airflow/gcs/dags/dag_spark_analytics.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.7/site-packages/airflow/models/dagbag.py", line 339, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 728, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/airflow/gcs/dags/dag_spark_analytics.py", line 4, in <module>
+    from pyspark.sql import SparkSession
+ModuleNotFoundError: No module named 'pyspark'
+[2025-12-15T08:13:20.598+0000] {processor.py:755} WARNING - No viable dags retrieved from /home/airflow/gcs/dags/dag_spark_analytics.py
+[2025-12-15T08:13:20.627+0000] {processor.py:175} INFO - Processing /home/airflow/gcs/dags/dag_spark_analytics.py took 0.049 seconds

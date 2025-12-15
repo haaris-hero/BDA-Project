@@ -6746,3 +6746,17 @@
 [2025-12-15T08:12:19.179+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:12:19.179+0000] {dag.py:2676} INFO - Sync 1 DAGs
 [2025-12-15T08:12:19.220+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:12:19.220+0000] {dag.py:3427} INFO - Setting next_dagrun for ingest_streams_to_mongo to 2025-12-15T08:11:00+00:00, run_after=2025-12-15T08:12:00+00:00
 [2025-12-15T08:12:19.246+0000] {processor.py:175} INFO - Processing /home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py took 0.268 seconds
+[2025-12-15T08:12:49.547+0000] {processor.py:153} INFO - Started process (PID=7699) to work on /home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py
+[2025-12-15T08:12:49.548+0000] {processor.py:743} INFO - Processing file /home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py for tasks to queue
+[2025-12-15T08:12:49.549+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:12:49.549+0000] {dagbag.py:538} INFO - Filling up the DagBag from /home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py
+[2025-12-15T08:12:49.698+0000] {processor.py:753} INFO - DAG(s) dict_keys(['ingest_streams_to_mongo']) retrieved from /home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py
+[2025-12-15T08:12:49.755+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:12:49.755+0000] {dag.py:2676} INFO - Sync 1 DAGs
+[2025-12-15T08:12:49.800+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:12:49.799+0000] {dag.py:3427} INFO - Setting next_dagrun for ingest_streams_to_mongo to 2025-12-15T08:11:00+00:00, run_after=2025-12-15T08:12:00+00:00
+[2025-12-15T08:12:49.835+0000] {processor.py:175} INFO - Processing /home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py took 0.293 seconds
+[2025-12-15T08:13:20.355+0000] {processor.py:153} INFO - Started process (PID=7704) to work on /home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py
+[2025-12-15T08:13:20.358+0000] {processor.py:743} INFO - Processing file /home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py for tasks to queue
+[2025-12-15T08:13:20.359+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:13:20.359+0000] {dagbag.py:538} INFO - Filling up the DagBag from /home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py
+[2025-12-15T08:13:20.487+0000] {processor.py:753} INFO - DAG(s) dict_keys(['ingest_streams_to_mongo']) retrieved from /home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py
+[2025-12-15T08:13:20.538+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:13:20.538+0000] {dag.py:2676} INFO - Sync 1 DAGs
+[2025-12-15T08:13:20.582+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:13:20.582+0000] {dag.py:3427} INFO - Setting next_dagrun for ingest_streams_to_mongo to 2025-12-15T08:12:00+00:00, run_after=2025-12-15T08:13:00+00:00
+[2025-12-15T08:13:20.610+0000] {processor.py:175} INFO - Processing /home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py took 0.261 seconds

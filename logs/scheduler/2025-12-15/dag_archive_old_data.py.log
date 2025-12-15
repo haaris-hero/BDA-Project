@@ -6753,3 +6753,17 @@
 [2025-12-15T08:12:23.357+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:12:23.357+0000] {dag.py:2676} INFO - Sync 1 DAGs
 [2025-12-15T08:12:23.391+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:12:23.391+0000] {dag.py:3427} INFO - Setting next_dagrun for archive_old_data to 2025-12-15T07:30:00+00:00, run_after=2025-12-15T08:00:00+00:00
 [2025-12-15T08:12:23.417+0000] {processor.py:175} INFO - Processing /home/airflow/gcs/dags/dag_archive_old_data.py took 0.193 seconds
+[2025-12-15T08:12:53.895+0000] {processor.py:153} INFO - Started process (PID=7702) to work on /home/airflow/gcs/dags/dag_archive_old_data.py
+[2025-12-15T08:12:53.897+0000] {processor.py:743} INFO - Processing file /home/airflow/gcs/dags/dag_archive_old_data.py for tasks to queue
+[2025-12-15T08:12:53.898+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:12:53.897+0000] {dagbag.py:538} INFO - Filling up the DagBag from /home/airflow/gcs/dags/dag_archive_old_data.py
+[2025-12-15T08:12:54.000+0000] {processor.py:753} INFO - DAG(s) dict_keys(['archive_old_data']) retrieved from /home/airflow/gcs/dags/dag_archive_old_data.py
+[2025-12-15T08:12:54.094+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:12:54.094+0000] {dag.py:2676} INFO - Sync 1 DAGs
+[2025-12-15T08:12:54.142+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:12:54.142+0000] {dag.py:3427} INFO - Setting next_dagrun for archive_old_data to 2025-12-15T07:30:00+00:00, run_after=2025-12-15T08:00:00+00:00
+[2025-12-15T08:12:54.226+0000] {processor.py:175} INFO - Processing /home/airflow/gcs/dags/dag_archive_old_data.py took 0.338 seconds
+[2025-12-15T08:13:24.660+0000] {processor.py:153} INFO - Started process (PID=7707) to work on /home/airflow/gcs/dags/dag_archive_old_data.py
+[2025-12-15T08:13:24.663+0000] {processor.py:743} INFO - Processing file /home/airflow/gcs/dags/dag_archive_old_data.py for tasks to queue
+[2025-12-15T08:13:24.665+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:13:24.665+0000] {dagbag.py:538} INFO - Filling up the DagBag from /home/airflow/gcs/dags/dag_archive_old_data.py
+[2025-12-15T08:13:24.754+0000] {processor.py:753} INFO - DAG(s) dict_keys(['archive_old_data']) retrieved from /home/airflow/gcs/dags/dag_archive_old_data.py
+[2025-12-15T08:13:24.822+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:13:24.822+0000] {dag.py:2676} INFO - Sync 1 DAGs
+[2025-12-15T08:13:24.895+0000] {logging_mixin.py:137} INFO - [2025-12-15T08:13:24.895+0000] {dag.py:3427} INFO - Setting next_dagrun for archive_old_data to 2025-12-15T07:30:00+00:00, run_after=2025-12-15T08:00:00+00:00
+[2025-12-15T08:13:24.933+0000] {processor.py:175} INFO - Processing /home/airflow/gcs/dags/dag_archive_old_data.py took 0.277 seconds
