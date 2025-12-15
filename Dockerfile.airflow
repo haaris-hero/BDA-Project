@@ -1,0 +1,6 @@
+FROM apache/airflow:2.5.0
+
+# Set environment variable for additional pip requirements (compatible with Python 3.7)
+ENV _PIP_ADDITIONAL_REQUIREMENTS="kafka-python==2.0.2 pymongo==4.4.1 faker==15.3.0"
+
+USER airflow

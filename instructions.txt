@@ -1,0 +1,686 @@
+---
+
+# *Real-Time Food Delivery Kitchen & Rider Operations Monitoring System*
+
+(based on Swiggy / Foodpanda / UberEats internal dashboards)
+
+This breakdown explains:
+✔ What you will build
+✔ What you will generate
+✔ Where every technology (Kafka, Spark, Mongo, Hadoop, Airflow, BI, Docker) is used
+✔ How the entire pipeline works from *stream → analytics → dashboard*
+
+This is written in a way you can directly put into your project report.
+
+---
+
+# *1. BUSINESS PROBLEM — Why This System Must Be Real-Time*
+
+Food delivery platforms deal with *three real-time bottlenecks*:
+
+### A) *Kitchen Overload*
+
+Orders spike during lunch/dinner.
+If the system cannot detect overload instantly →
+➡ excess preparation delay
+➡ poor customer experience
+➡ order cancellations
+
+### B) *Rider Availability Mismatch*
+
+Some zones have too many orders and too few riders →
+➡ long pickup delays
+➡ longer delivery times
+➡ revenue loss
+
+### C) *Unpredictable Delays*
+
+Traffic congestion, rider idle time, slow kitchens, weather.
+Food delivery is a *real-time coordination problem* → managers need dashboards that update *every minute*.
+
+---
+
+# *2. STREAMING DATA — What We Generate in Real-Time*
+
+You will generate *3 continuous streams* (using Faker + statistical correlation + json messages):
+
+---
+
+## *Stream 1 — Kitchen Events (kitchen_stream)*
+
+Produced every 2–6 seconds from simulated restaurants.
+
+Fields:
+
+* order_id
+* restaurant_id
+* chef_id
+* items_count
+* prep_start_time
+* prep_end_time
+* prep_delay_minutes
+* predicted_prep_delay
+* priority_flag
+* order_type (dine-in, delivery)
+
+*Correlations*
+
+* More items_count → larger prep_time
+* High restaurant load → more delays
+* Peak hours → more backlog
+
+---
+
+## *Stream 2 — Rider Events (rider_stream)*
+
+Produced every 1–3 seconds per rider.
+
+Fields:
+
+* rider_id
+* rider_location (lat, long)
+* rider_status (idle, assigned, pickup, enroute)
+* traffic_delay
+* pickup_delay_minutes
+* dropoff_delay_minutes
+* distance_to_restaurant
+* trip_count_today
+
+*Correlations*
+
+* Traffic ↑ → pickup time ↑
+* Idle time ↓ when order demand ↑
+
+---
+
+## *Stream 3 — Customer Order Events (orders_stream)*
+
+Generated every 2–5 seconds.
+
+Fields:
+
+* order_id
+* customer_id
+* restaurant_id
+* zone_id
+* order_value
+* payment_type
+* estimated_delivery
+* actual_delivery
+* delivery_delay
+
+*Correlations*
+
+* Busy kitchens → higher delivery time
+* Far zones → more travel delay
+
+---
+
+# *Kafka Topics*
+
+yaml
+kafka_topics:
+
+* kitchen_stream
+* rider_stream
+* orders_stream
+
+Each message is a JSON object → simulation code pushes it continuously.
+
+---
+
+# *3. SCHEMA (FACTS + DIMENSIONS)*
+
+You will build a *dimensional model* for Spark SQL analytics.
+
+---
+
+## Fact Tables
+
+### 1) kitchen_fact
+
+| KPI                   | Description                |
+| --------------------- | -------------------------- |
+| prep_delay_minutes    | Late preparation time      |
+| avg_prep_time         | Overall kitchen efficiency |
+| items_prepared        | Throughput measure         |
+| order_backlog         | Critical KPI for load      |
+| chef_efficiency_score | Derived metric             |
+
+---
+
+### 2) rider_fact
+
+| KPI                   | Description                              |
+| --------------------- | ---------------------------------------- |
+| pickup_delay_minutes  | How long rider takes to reach restaurant |
+| travel_time           | Delivery time                            |
+| rider_idle_time       | Efficiency KPI                           |
+| traffic_delay_minutes | Live congestion indicator                |
+| delivered_orders      | Productivity                             |
+
+---
+
+### 3) orders_fact
+
+| KPI                   | Description       |
+| --------------------- | ----------------- |
+| order_value           | Revenue KPI       |
+| discount_amount       | Business cost KPI |
+| customer_wait_time    | Service KPI       |
+| delivery_time_minutes | End-to-end metric |
+| cancellation_prob     | Risk prediction   |
+
+---
+
+## Dimensions
+
+* *dim_customer*
+* *dim_restaurant*
+* *dim_rider*
+* *dim_zone*
+* *dim_time*
+* *dim_food_category*
+* *dim_vehicle_type*
+
+Perfect for SQL joins.
+
+---
+
+# *4. WHAT YOU WILL BUILD — Full Pipeline Overview*
+
+Here is everything you will do step-by-step.
+
+---
+
+# *STEP 1 — REAL-TIME DATA GENERATION (Python)*
+
+You write 3 Python scripts:
+generate_kitchen_stream.py
+generate_rider_stream.py
+generate_orders_stream.py
+
+Each script:
+
+* generates synthetic but statistically realistic data
+* publishes JSON messages to Kafka topics
+* runs continuously
+
+---
+
+# *STEP 2 — INGESTION LAYER (Kafka → MongoDB via Airflow DAG#1)*
+
+Airflow DAG:
+ingest_streams_to_mongo
+
+Tasks:
+
+* Kafka consumer reads each topic
+* Inserts latest messages into:
+
+  * mongo.kitchen_events
+  * mongo.rider_events
+  * mongo.orders_events
+
+MongoDB serves as *hot storage* for the freshest 0–300MB data.
+
+---
+
+# *STEP 3 — STORAGE LAYER*
+
+### HOT STORAGE (MongoDB)
+
+Holds last ~30–60 minutes of data (configurable).
+
+### COLD STORAGE (Hadoop HDFS)
+
+When MongoDB hits 300MB:
+
+Airflow DAG:
+archive_old_data
+
+Steps:
+
+* dump oldest 50MB
+* compress as Parquet/ORC
+* put into /archive/food_delivery/YYYY/MM/DD/
+* write metadata to *Hive metastore*:
+
+  * filename
+  * timestamp
+  * chunk size
+  * schema version
+
+MongoDB deletes archived chunk.
+
+---
+
+# *STEP 4 — DATA PROCESSING (Spark Structured Streaming via Airflow DAG#2)*
+
+This is where all KPIs get computed.
+
+DAG:
+spark_transform_and_aggregate
+
+Spark performs:
+
+### JOIN OPERATIONS
+
+sql
+kitchen_fact
+JOIN orders_fact ON order_id
+JOIN rider_fact ON rider_id
+JOIN dim_restaurant ON restaurant_id
+JOIN dim_zone ON zone_id
+
+### KPI Calculation Examples
+
+#### 1) Real-Time Kitchen Load
+
+sql
+SELECT
+restaurant_id,
+COUNT(order_id) AS active_orders,
+AVG(prep_delay_minutes) AS avg_delay
+FROM kitchen_fact
+GROUP BY restaurant_id;
+
+#### 2) Rider Efficiency Score
+
+(Uses traffic + idle + pickup delays)
+
+#### 3) Zone-Wise Demand Trend
+
+(Orders per zone per minute)
+
+Spark writes results to:
+
+* mongo.analytics_kpis
+  OR
+* Parquet files in *staging folder*: /staging/kpis/
+
+---
+
+# *STEP 5 — BI DASHBOARD (LIVE REFRESH EVERY MINUTE)*
+
+Use: *Apache Superset, Metabase, or Power BI Embedded*
+
+Dashboards to build:
+
+## Kitchen Monitoring Dashboard
+
+* Order backlog per restaurant
+* Average prep time per restaurant
+* Peak load forecast (line chart)
+* Chef performance metrics
+
+## Rider Operations Dashboard
+
+* Live rider locations (map)
+* Rider idle time vs active time
+* Pickup delay per zone
+* Traffic impact vs delivery time
+
+## Order Analytics Dashboard
+
+* Revenue per minute
+* Cancellation prediction
+* Delivery delays by zone
+* Payment type distribution
+
+*BI refresh window: 60 seconds*
+
+---
+
+# *STEP 6 — DOCKERIZATION*
+
+You will run everything as containers:
+
+docker-compose.yml
+
+Services:
+
+* kafka
+* zookeeper
+* airflow
+* mongo
+* spark-master
+* spark-worker
+* hadoop-namenode
+* hadoop-datanode
+* superset / metabase
+
+Airflow communicates with Kafka, Mongo, and Spark using network links.
+
+---
+
+# COMPLETE STEP-BY-STEP EXECUTION GUIDE
+
+## STEP 1: Verify All Docker Containers Are Running
+
+```bash
+docker-compose ps
+# Expected: All services should show "Up" or "Up (healthy)"
+```
+
+## STEP 2: Create Kafka Topics (CORRECTED METHOD)
+
+```bash
+cd /home/haaris/food-delivery-pipeline
+
+# Use bash -c with kafka-topics (without full path)
+docker-compose exec kafka bash -c "
+  kafka-topics --create \
+    --bootstrap-server kafka:9092 \
+    --topic kitchen_stream \
+    --partitions 3 \
+    --replication-factor 1 \
+    --if-not-exists
+"
+
+docker-compose exec kafka bash -c "
+  kafka-topics --create \
+    --bootstrap-server kafka:9092 \
+    --topic rider_stream \
+    --partitions 3 \
+    --replication-factor 1 \
+    --if-not-exists
+"
+
+docker-compose exec kafka bash -c "
+  kafka-topics --create \
+    --bootstrap-server kafka:9092 \
+    --topic orders_stream \
+    --partitions 3 \
+    --replication-factor 1 \
+    --if-not-exists
+"
+
+# Verify topics were created
+docker-compose exec kafka bash -c "kafka-topics --list --bootstrap-server kafka:9092"
+
+# Expected output:
+# kitchen_stream
+# orders_stream
+# rider_stream
+```
+
+## STEP 3: Create MongoDB Collections (FIXED)
+
+```bash
+# Use correct MongoDB connection method
+docker-compose exec mongo mongo -u root -p password123 --authenticationDatabase admin food_delivery <<EOF
+  db.createCollection('kitchen_events');
+  db.createCollection('rider_events');
+  db.createCollection('orders_events');
+  db.createCollection('archive_metadata');
+  print('✅ Collections created');
+  show collections;
+EOF
+```
+
+## STEP 4: Install Python Dependencies in Airflow (FIXED)
+
+```bash
+docker exec airflow-webserver pip install --user -q kafka-python pymongo faker numpy python-dotenv
+echo "✅ Dependencies installed"
+```
+
+## STEP 5: Start Data Generators (3 Terminal Windows - CRITICAL)
+
+**Terminal 1 - Kitchen Stream:**
+```bash
+cd /home/haaris/food-delivery-pipeline
+docker exec -it airflow-webserver python scripts/generate_kitchen_stream.py
+# Expected: [KITCHEN] ORD... sent to Kafka (repeating every 2-6 seconds)
+```
+
+**Terminal 2 - Rider Stream:**
+```bash
+cd /home/haaris/food-delivery-pipeline
+docker exec -it airflow-webserver python scripts/generate_rider_stream.py
+# Expected: [RIDER] RIDER... sent to Kafka (repeating every 1-3 seconds)
+```
+
+**Terminal 3 - Orders Stream:**
+```bash
+cd /home/haaris/food-delivery-pipeline
+docker exec -it airflow-webserver python scripts/generate_orders_stream.py
+# Expected: [ORDER] ORD... sent to Kafka (repeating every 2-5 seconds)
+```
+
+**Keep all 3 terminals running!**
+
+## STEP 6: Verify Data Flowing in Kafka (New Terminal #4)
+
+```bash
+docker-compose exec kafka bash -c "
+  kafka-console-consumer \
+    --bootstrap-server kafka:9092 \
+    --topic kitchen_stream \
+    --from-beginning \
+    --max-messages 1 \
+    --timeout-ms 5000
+"
+
+# Expected: JSON message like:
+# {"order_id":"ORD...", "restaurant_id":"R0001", "prep_delay_minutes":2.5, ...}
+```
+
+## STEP 7: Verify Data Flowing in MongoDB (New Terminal #5)
+
+Monitor MongoDB data growth:
+```bash
+watch -n 5 'docker-compose exec mongo mongo mongodb://root:password123@localhost:27017/food_delivery --eval "
+  print(\"Kitchen: \" + db.kitchen_events.countDocuments());
+  print(\"Rider: \" + db.rider_events.countDocuments());
+  print(\"Orders: \" + db.orders_events.countDocuments());
+  print(\"Updated: \" + new Date());
+"'
+
+# Press Ctrl+C to exit
+# Expected: Numbers should increase every 5 seconds
+```
+
+## STEP 8: Enable & Trigger Airflow Ingestion DAG (New Terminal #6)
+
+```bash
+# Enable the DAG
+docker exec airflow-scheduler airflow dags unpause ingest_streams_to_mongo
+
+# Trigger it immediately
+docker exec airflow-scheduler airflow dags trigger ingest_streams_to_mongo
+
+# Wait 1 minute for it to run
+sleep 60
+
+# Check if it succeeded
+docker exec airflow-scheduler airflow dags list-runs --dag-id ingest_streams_to_mongo
+
+# Expected: Should show successful run with green status
+```
+
+## STEP 9: Check Airflow Web UI
+
+```bash
+# Open in browser:
+# http://localhost:8888
+
+# Login: admin / admin
+
+# You should see:
+# - ingest_streams_to_mongo (green checkmark if successful)
+# - archive_old_data
+# - spark_compute_kpis
+```
+
+## STEP 10: Create Spark Job Directory
+
+```bash
+mkdir -p /home/haaris/food-delivery-pipeline/spark_jobs
+```
+
+## STEP 11: Copy Spark Job File to Container
+
+First, create the Spark job file locally (from previous instructions), then:
+
+```bash
+docker exec spark-master mkdir -p /opt/spark-apps
+
+docker cp /home/haaris/food-delivery-pipeline/spark_jobs/compute_kpis.py spark-master:/opt/spark-apps/
+
+# Verify it was copied
+docker exec spark-master ls -la /opt/spark-apps/
+```
+
+## STEP 12: Enable Spark KPI DAG
+
+```bash
+# Enable the Spark DAG
+docker exec airflow-scheduler airflow dags unpause spark_compute_kpis
+
+# Trigger it
+docker exec airflow-scheduler airflow dags trigger spark_compute_kpis
+
+# Wait 1 minute
+sleep 60
+
+# Check logs
+docker exec airflow-scheduler airflow tasks logs spark_compute_kpis compute_kpis_spark
+
+# Expected: Should show "✅ All KPIs computed and written successfully"
+```
+
+## STEP 13: Verify KPIs Are Computed
+
+```bash
+# Check KPI collections were created
+docker-compose exec mongo mongo mongodb://root:password123@localhost:27017/food_delivery --eval "
+  show collections;
+"
+
+# Expected output should include:
+# kpi_kitchen_load
+# kpi_rider_efficiency
+# kpi_zone_demand
+# kpi_order_analytics
+
+# View KPI data
+docker-compose exec mongo mongo mongodb://root:password123@localhost:27017/food_delivery --eval "
+  db.kpi_kitchen_load.findOne();
+"
+
+# Expected: JSON with restaurant_id, active_orders, avg_prep_delay, etc.
+```
+
+## STEP 14: Access Superset Dashboard UI
+
+```bash
+# Open in browser:
+# http://localhost:8089
+
+# Login: admin / admin
+
+# Follow these steps:
+# 1. Click "+" icon → "Data" → "Connect database"
+# 2. Select "MongoDB" from dropdown
+# 3. Connection string: mongodb://root:password123@mongo:27017/food_delivery
+# 4. Click "Connect"
+# 5. Click "Create dataset" from:
+#    - kpi_kitchen_load
+#    - kpi_rider_efficiency
+#    - kpi_zone_demand
+#    - kpi_order_analytics
+# 6. Create charts (bar, pie, gauge, line)
+# 7. Create dashboard and add charts
+```
+
+## STEP 15: Monitor Live Updates (Continuous)
+
+**Monitor MongoDB Growth:**
+```bash
+watch -n 5 'docker-compose exec mongo mongo mongodb://root:password123@localhost:27017/food_delivery --eval "
+  var k = db.kitchen_events.countDocuments();
+  var r = db.rider_events.countDocuments();
+  var o = db.orders_events.countDocuments();
+  print(\"K:\" + k + \" | R:\" + r + \" | O:\" + o + \" | Total:\" + (k+r+o));
+"'
+```
+
+**Monitor Airflow DAGs:**
+```bash
+# http://localhost:8888/dags
+# Refresh every 60 seconds to see new DAG runs
+```
+
+**Monitor Superset Dashboard:**
+```bash
+# http://localhost:8089/superset/dashboard/
+# Refresh every 60 seconds to see updated KPIs
+```
+
+---
+
+# SUCCESS CHECKLIST ✅
+
+- [ ] All containers running (docker-compose ps)
+- [ ] Kafka topics created (3 topics listed)
+- [ ] MongoDB collections created
+- [ ] 3 data generators running continuously
+- [ ] Data flowing into Kafka
+- [ ] Data flowing into MongoDB (counts increasing)
+- [ ] Airflow ingest DAG running successfully
+- [ ] Spark KPI DAG running successfully
+- [ ] KPI collections in MongoDB with data
+- [ ] Superset dashboard created and updating
+- [ ] Live updates visible every 1 minute
+
+---
+
+# TROUBLESHOOTING
+
+## MongoDB Authentication Issues
+```bash
+# If authentication fails, check MongoDB is ready:
+docker-compose exec mongo mongo --version
+
+# Try connecting without auth first:
+docker-compose exec mongo mongo mongodb://localhost:27017/food_delivery
+
+# Check credentials in docker-compose.yml match
+```
+
+## Generators Not Sending Data
+```bash
+# Check generator logs:
+docker logs airflow-webserver | grep -i kitchen
+
+# Verify Kafka is accessible from generator:
+docker exec airflow-webserver python -c "from kafka import KafkaProducer; print('✅ Kafka module works')"
+```
+
+## Airflow DAG Not Running
+```bash
+# Check Airflow scheduler is running:
+docker-compose ps | grep scheduler
+
+# Check DAG file is in correct location:
+docker exec airflow-webserver ls -la /home/airflow/gcs/dags/
+
+# View scheduler logs:
+docker-compose logs airflow-scheduler | tail -50
+```
+
+## Spark Job Failing
+```bash
+# Check Spark master is accessible:
+curl -s http://localhost:8080 | grep -q "Spark Master" && echo "✅ Spark OK"
+
+# View Spark logs:
+docker logs spark-master | tail -20
+
+# Check MongoDB connector is installed:
+docker exec spark-master ls /opt/spark-jars/ | grep mongo
+```
+
+---

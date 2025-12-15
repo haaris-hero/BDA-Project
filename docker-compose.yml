@@ -1,0 +1,268 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_LOG_RETENTION_HOURS: 2
+    ports:
+      - "9092:9092"
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:4.4  # Changed from 6.0 to 4.4 for CPU compatibility
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: food_delivery
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./scripts/mongo_init.js:/docker-entrypoint-initdb.d/init.js:ro
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+    mem_limit: 1g
+    command: mongod
+
+  hadoop-namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    environment:
+      CLUSTER_NAME: food_delivery_cluster
+      CORE_CONF_fs_defaultFS: hdfs://hadoop-namenode:8020
+      CORE_CONF_hadoop_http_staticuser_user_name: root
+    ports:
+      - "50070:50070"
+      - "8020:8020"
+    volumes:
+      - namenode_data:/hadoop/dfs/name
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+
+  hadoop-datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    depends_on:
+      - hadoop-namenode
+    environment:
+      SERVICE_PRECONDITION: hadoop-namenode:8020
+      CORE_CONF_fs_defaultFS: hdfs://hadoop-namenode:8020
+    ports:
+      - "50075:50075"
+    volumes:
+      - datanode_data:/hadoop/dfs/data
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+
+  spark-master:
+    image: apache/spark:latest
+    container_name: spark-master
+    environment:
+      SPARK_MODE: master
+      SPARK_RPC_AUTHENTICATION_ENABLED: "no"
+      SPARK_RPC_ENCRYPTION_ENABLED: "no"
+      SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED: "no"
+      SPARK_SSL_ENABLED: "no"
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+      - "6066:6066"
+    volumes:
+      - ./spark_jobs:/opt/spark-apps
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+
+  spark-worker-1:
+    image: apache/spark:latest
+    container_name: spark-worker-1
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_MODE: worker
+      SPARK_MASTER_URL: spark://spark-master:7077
+      SPARK_WORKER_MEMORY: 1G
+      SPARK_WORKER_CORES: 1
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./spark_jobs:/opt/spark-apps
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+
+  spark-worker-2:
+    image: apache/spark:latest
+    container_name: spark-worker-2
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_MODE: worker
+      SPARK_MASTER_URL: spark://spark-master:7077
+      SPARK_WORKER_MEMORY: 1G
+      SPARK_WORKER_CORES: 1
+    ports:
+      - "8082:8081"
+    volumes:
+      - ./spark_jobs:/opt/spark-apps
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+
+  airflow-postgres:
+    image: postgres:13-alpine
+    container_name: airflow-postgres
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  airflow-webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow-webserver
+    depends_on:
+      airflow-postgres:
+        condition: service_healthy
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__FERNET_KEY: "81HqDtbqAywKSOumSha3BqDTh0yrLiIkVlAJFQDm0Q="
+      AIRFLOW__CORE__DAGS_FOLDER: /home/airflow/gcs/dags
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "true"
+      AIRFLOW_HOME: /home/airflow
+    ports:
+      - "8888:8080"
+    volumes:
+      - ./dags:/home/airflow/gcs/dags
+      - ./logs:/home/airflow/logs
+      - ./plugins:/home/airflow/plugins
+    command: >
+      bash -c "
+      airflow db upgrade &&
+      airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com 2>/dev/null || true &&
+      airflow webserver --port 8080
+      "
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  airflow-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow-scheduler
+    depends_on:
+      airflow-postgres:
+        condition: service_healthy
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__FERNET_KEY: "81HqDtbqAywKSOumSha3BqDTh0yrLiIkVlAJFQDm0Q="
+      AIRFLOW__CORE__DAGS_FOLDER: /home/airflow/gcs/dags
+      AIRFLOW_HOME: /home/airflow
+    volumes:
+      - ./dags:/home/airflow/gcs/dags
+      - ./logs:/home/airflow/logs
+      - ./plugins:/home/airflow/plugins
+    command: airflow scheduler
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+
+  superset:
+    image: apache/superset:2.0.0
+    container_name: superset
+    depends_on:
+      - superset-postgres
+    environment:
+      DATABASE_URL: postgresql://superset:superset@superset-postgres/superset
+      SUPERSET_SECRET_KEY: "thesecretkeychangeme"
+      SUPERSET_LOAD_EXAMPLES: "false"
+    ports:
+      - "8090:8088"  # Changed from 8089 to 8090
+    volumes:
+      - ./superset_config.py:/app/pythonpath/superset_config.py:ro
+    command: >
+      bash -c "superset db upgrade && 
+      superset fab create-admin --username admin --firstname Admin --lastname User --email admin@superset.com --password admin 2>/dev/null || true &&
+      superset run -p 8088 -h 0.0.0.0"
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  superset-postgres:
+    image: postgres:13-alpine
+    container_name: superset-postgres
+    environment:
+      POSTGRES_USER: superset
+      POSTGRES_PASSWORD: superset
+      POSTGRES_DB: superset
+    volumes:
+      - superset_postgres_data:/var/lib/postgresql/data
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "superset"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mongo_data:
+  namenode_data:
+  datanode_data:
+  postgres_data:
+  superset_postgres_data:
+
+networks:
+  food-delivery-net:
+    driver: bridge
