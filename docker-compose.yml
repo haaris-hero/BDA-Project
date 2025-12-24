@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   zookeeper:
@@ -30,7 +30,7 @@ services:
     restart: unless-stopped
 
   mongo:
-    image: mongo:4.4  # Changed from 6.0 to 4.4 for CPU compatibility
+    image: mongo:4.4
     container_name: mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
@@ -82,10 +82,6 @@ services:
     container_name: spark-master
     environment:
       SPARK_MODE: master
-      SPARK_RPC_AUTHENTICATION_ENABLED: "no"
-      SPARK_RPC_ENCRYPTION_ENABLED: "no"
-      SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED: "no"
-      SPARK_SSL_ENABLED: "no"
     ports:
       - "8080:8080"
       - "7077:7077"
@@ -174,6 +170,7 @@ services:
       - ./dags:/home/airflow/gcs/dags
       - ./logs:/home/airflow/logs
       - ./plugins:/home/airflow/plugins
+      - ./scripts:/opt/airflow/scripts
     command: >
       bash -c "
       airflow db upgrade &&
@@ -212,31 +209,20 @@ services:
       - food-delivery-net
     restart: unless-stopped
 
-  superset:
-    image: apache/superset:2.0.0
-    container_name: superset
-    depends_on:
-      - superset-postgres
-    environment:
-      DATABASE_URL: postgresql://superset:superset@superset-postgres/superset
-      SUPERSET_SECRET_KEY: "thesecretkeychangeme"
-      SUPERSET_LOAD_EXAMPLES: "false"
-    ports:
-      - "8090:8088"  # Changed from 8089 to 8090
+  kafka-ingestion:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
     volumes:
-      - ./superset_config.py:/app/pythonpath/superset_config.py:ro
-    command: >
-      bash -c "superset db upgrade && 
-      superset fab create-admin --username admin --firstname Admin --lastname User --email admin@superset.com --password admin 2>/dev/null || true &&
-      superset run -p 8088 -h 0.0.0.0"
+    - ./scripts:/opt/airflow/scripts
+    command: python /opt/airflow/scripts/ingest_kafka_to_mongo.py
+    depends_on:
+      - kafka
+      - mongo
+      - superset-postgres
     networks:
       - food-delivery-net
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8088/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+    restart: always
 
   superset-postgres:
     image: postgres:13-alpine
@@ -256,12 +242,55 @@ services:
       timeout: 5s
       retries: 5
 
+  superset:
+    image: apache/superset:2.0.0
+    container_name: superset
+    depends_on:
+      - superset-postgres
+      - superset-db
+    environment:
+      DATABASE_URL: postgresql://superset:superset@superset-postgres/superset
+      SUPERSET_SECRET_KEY: "thesecretkeychangeme"
+      SUPERSET_LOAD_EXAMPLES: "false"
+      SQLALCHEMY_DATABASE_URI: postgresql://superset:superset@superset-db:5432/superset
+    ports:
+      - "8090:8088"
+    volumes:
+      - ./superset_config.py:/app/pythonpath/superset_config.py:ro
+      - superset_home:/app/superset_home
+    command: >
+      bash -c "
+      superset db upgrade &&
+      superset fab create-admin --username admin --firstname Admin --lastname User --email admin@superset.com --password admin 2>/dev/null || true &&
+      superset run -p 8088 -h 0.0.0.0
+      "
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  superset-db:
+    image: postgres:13
+    container_name: superset-metadata-db
+    environment:
+      POSTGRES_DB: superset
+      POSTGRES_USER: superset
+      POSTGRES_PASSWORD: superset
+    volumes:
+      - superset_metadata:/var/lib/postgresql/data
+
 volumes:
   mongo_data:
   namenode_data:
   datanode_data:
   postgres_data:
   superset_postgres_data:
+  superset_metadata:
+  superset_home:
 
 networks:
   food-delivery-net:
