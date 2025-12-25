@@ -1,0 +1,2 @@
+[2025-12-25T06:24:28.673+0000] {taskinstance.py:1081} INFO - Dependencies not met for <TaskInstance: spark_compute_kpis.compute_kpis_spark scheduled__2025-12-25T06:22:00+00:00 [up_for_retry]>, dependency 'Not In Retry Period' FAILED: Task is not ready for retry yet but will be retried automatically. Current date is 2025-12-25T06:24:28.673822+00:00 and task will be retried at 2025-12-25T06:26:22.703982+00:00.
+[2025-12-25T06:24:28.686+0000] {local_task_job.py:98} INFO - Task is not able to be run

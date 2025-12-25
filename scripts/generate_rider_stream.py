@@ -56,7 +56,7 @@ class RiderStreamGenerator:
             "distance_to_restaurant_km": round(float(distance), 2),
             "trip_count_today": int(trip_count),
             "idle_time_minutes": int(self.rider_idle_time[rider_id]),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.utcnow().isoformat()
         }
         return event
 

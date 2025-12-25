@@ -54,7 +54,7 @@ services:
       CORE_CONF_fs_defaultFS: hdfs://hadoop-namenode:8020
       CORE_CONF_hadoop_http_staticuser_user_name: root
     ports:
-      - "50070:50070"
+      - "50070:9870"
       - "8020:8020"
     volumes:
       - namenode_data:/hadoop/dfs/name
@@ -200,10 +200,16 @@ services:
       AIRFLOW__CORE__FERNET_KEY: "81HqDtbqAywKSOumSha3BqDTh0yrLiIkVlAJFQDm0Q="
       AIRFLOW__CORE__DAGS_FOLDER: /home/airflow/gcs/dags
       AIRFLOW_HOME: /home/airflow
+      DOCKER_API_VERSION: "1.44"
     volumes:
       - ./dags:/home/airflow/gcs/dags
       - ./logs:/home/airflow/logs
       - ./plugins:/home/airflow/plugins
+      - ./spark_jobs:/opt/airflow/spark_jobs
+      - ./scripts:/opt/airflow/scripts
+      - /var/run/docker.sock:/var/run/docker.sock
+    group_add:
+      - "984"  # docker group ID
     command: airflow scheduler
     networks:
       - food-delivery-net
@@ -282,6 +288,21 @@ services:
       POSTGRES_PASSWORD: superset
     volumes:
       - superset_metadata:/var/lib/postgresql/data
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+    command: redis-server --appendonly yes
 
 volumes:
   mongo_data:
@@ -291,6 +312,7 @@ volumes:
   superset_postgres_data:
   superset_metadata:
   superset_home:
+  redis_data:
 
 networks:
   food-delivery-net:

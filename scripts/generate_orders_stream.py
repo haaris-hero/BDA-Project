@@ -77,7 +77,7 @@ class OrdersStreamGenerator:
                 "cancellation_probability": round(float(cancellation_prob), 3),
                 "is_cancelled": not is_delivered,
                 "customer_rating": customer_rating,
-                "event_time": datetime.utcnow().isoformat()   # ✅ FIX
+                "timestamp": datetime.utcnow().isoformat()
             }
 
             return event

@@ -62,7 +62,7 @@ class KitchenStreamGenerator:
                 "predicted_prep_delay": round(float(prep_delay), 2),
                 "priority_flag": random.choice([True, False]),
                 "order_type": random.choice(["delivery", "dine-in"]),
-                "event_time": datetime.utcnow().isoformat()   # ✅ CRITICAL FIX
+                "timestamp": datetime.utcnow().isoformat()
             }
 
             return event

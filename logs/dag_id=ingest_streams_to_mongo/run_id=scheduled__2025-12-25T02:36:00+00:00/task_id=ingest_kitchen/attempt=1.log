@@ -1,0 +1,49 @@
+[2025-12-25T02:37:06.805+0000] {taskinstance.py:1087} INFO - Dependencies all met for <TaskInstance: ingest_streams_to_mongo.ingest_kitchen scheduled__2025-12-25T02:36:00+00:00 [queued]>
+[2025-12-25T02:37:06.820+0000] {taskinstance.py:1087} INFO - Dependencies all met for <TaskInstance: ingest_streams_to_mongo.ingest_kitchen scheduled__2025-12-25T02:36:00+00:00 [queued]>
+[2025-12-25T02:37:06.821+0000] {taskinstance.py:1283} INFO - 
+--------------------------------------------------------------------------------
+[2025-12-25T02:37:06.821+0000] {taskinstance.py:1284} INFO - Starting attempt 1 of 3
+[2025-12-25T02:37:06.822+0000] {taskinstance.py:1285} INFO - 
+--------------------------------------------------------------------------------
+[2025-12-25T02:37:06.840+0000] {taskinstance.py:1304} INFO - Executing <Task(PythonOperator): ingest_kitchen> on 2025-12-25 02:36:00+00:00
+[2025-12-25T02:37:06.849+0000] {standard_task_runner.py:55} INFO - Started process 16246 to run task
+[2025-12-25T02:37:06.854+0000] {standard_task_runner.py:82} INFO - Running: ['***', 'tasks', 'run', 'ingest_streams_to_mongo', 'ingest_kitchen', 'scheduled__2025-12-25T02:36:00+00:00', '--job-id', '1115', '--raw', '--subdir', 'DAGS_FOLDER/dag_ingest_streams_to_mongo.py', '--cfg-path', '/tmp/tmppuj83odp']
+[2025-12-25T02:37:06.856+0000] {standard_task_runner.py:83} INFO - Job 1115: Subtask ingest_kitchen
+[2025-12-25T02:37:06.982+0000] {task_command.py:389} INFO - Running <TaskInstance: ingest_streams_to_mongo.ingest_kitchen scheduled__2025-12-25T02:36:00+00:00 [running]> on host de865afe45c0
+[2025-12-25T02:37:07.137+0000] {taskinstance.py:1513} INFO - Exporting the following env vars:
+AIRFLOW_CTX_DAG_OWNER=data-engineering
+AIRFLOW_CTX_DAG_ID=ingest_streams_to_mongo
+AIRFLOW_CTX_TASK_ID=ingest_kitchen
+AIRFLOW_CTX_EXECUTION_DATE=2025-12-25T02:36:00+00:00
+AIRFLOW_CTX_TRY_NUMBER=1
+AIRFLOW_CTX_DAG_RUN_ID=scheduled__2025-12-25T02:36:00+00:00
+[2025-12-25T02:37:07.142+0000] {conn.py:381} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: connecting to kafka:9092 [('172.19.0.13', 9092) IPv4]
+[2025-12-25T02:37:07.143+0000] {conn.py:1205} INFO - Probing node bootstrap-0 broker version
+[2025-12-25T02:37:07.145+0000] {conn.py:410} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: Connection complete.
+[2025-12-25T02:37:07.250+0000] {conn.py:1267} INFO - Broker version identified as 2.5.0
+[2025-12-25T02:37:07.250+0000] {conn.py:1269} INFO - Set configuration api_version=(2, 5, 0) to skip auto check_version requests on startup
+[2025-12-25T02:37:07.252+0000] {subscription_state.py:171} INFO - Updating subscribed topics to: ('kitchen_stream',)
+[2025-12-25T02:37:07.263+0000] {cluster.py:371} INFO - Group coordinator for mongo-ingest-kitchen is ('coordinator-1', 'kafka', 9092, None)
+[2025-12-25T02:37:07.264+0000] {base.py:694} INFO - Discovered coordinator coordinator-1 for group mongo-ingest-kitchen
+[2025-12-25T02:37:07.265+0000] {base.py:741} INFO - Starting new heartbeat thread
+[2025-12-25T02:37:07.267+0000] {consumer.py:349} INFO - Revoking previously assigned partitions () for group mongo-ingest-kitchen
+[2025-12-25T02:37:07.269+0000] {conn.py:381} INFO - <BrokerConnection node_id=coordinator-1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: connecting to kafka:9092 [('172.19.0.13', 9092) IPv4]
+[2025-12-25T02:37:07.270+0000] {conn.py:410} INFO - <BrokerConnection node_id=coordinator-1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: Connection complete.
+[2025-12-25T02:37:07.270+0000] {conn.py:919} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connected> [IPv4 ('172.19.0.13', 9092)]>: Closing connection. 
+[2025-12-25T02:37:07.371+0000] {base.py:450} INFO - (Re-)joining group mongo-ingest-kitchen
+[2025-12-25T02:37:10.374+0000] {base.py:522} INFO - Elected group leader -- performing partition assignments using range
+[2025-12-25T02:37:10.377+0000] {conn.py:381} INFO - <BrokerConnection node_id=1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: connecting to kafka:9092 [('172.19.0.13', 9092) IPv4]
+[2025-12-25T02:37:10.378+0000] {conn.py:410} INFO - <BrokerConnection node_id=1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: Connection complete.
+[2025-12-25T02:37:10.378+0000] {base.py:336} INFO - Successfully joined group mongo-ingest-kitchen with generation 445
+[2025-12-25T02:37:10.378+0000] {subscription_state.py:257} INFO - Updated partition assignment: [('kitchen_stream', 0)]
+[2025-12-25T02:37:10.379+0000] {consumer.py:246} INFO - Setting newly assigned partitions (('kitchen_stream', 0),) for group mongo-ingest-kitchen
+[2025-12-25T02:37:12.265+0000] {base.py:748} INFO - Stopping heartbeat thread
+[2025-12-25T02:37:12.266+0000] {base.py:773} INFO - Leaving consumer group (mongo-ingest-kitchen).
+[2025-12-25T02:37:12.268+0000] {conn.py:919} INFO - <BrokerConnection node_id=coordinator-1 host=kafka:9092 <connected> [IPv4 ('172.19.0.13', 9092)]>: Closing connection. 
+[2025-12-25T02:37:12.269+0000] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9092 <connected> [IPv4 ('172.19.0.13', 9092)]>: Closing connection. 
+[2025-12-25T02:37:12.270+0000] {future.py:79} ERROR - Fetch to node 1 failed: Cancelled: <BrokerConnection node_id=1 host=kafka:9092 <connected> [IPv4 ('172.19.0.13', 9092)]>
+[2025-12-25T02:37:12.270+0000] {dag_ingest_streams_to_mongo.py:54} INFO - ✅ Kitchen: 0 records inserted
+[2025-12-25T02:37:12.271+0000] {python.py:177} INFO - Done. Returned value was: 0
+[2025-12-25T02:37:12.322+0000] {taskinstance.py:1327} INFO - Marking task as SUCCESS. dag_id=ingest_streams_to_mongo, task_id=ingest_kitchen, execution_date=20251225T023600, start_date=20251225T023706, end_date=20251225T023712
+[2025-12-25T02:37:12.360+0000] {local_task_job.py:159} INFO - Task exited with return code 0
+[2025-12-25T02:37:12.390+0000] {taskinstance.py:2582} INFO - 0 downstream tasks scheduled from follow-on schedule check

@@ -1,0 +1,76 @@
+[2025-12-25T05:31:30.292+0000] {taskinstance.py:1087} INFO - Dependencies all met for <TaskInstance: ingest_streams_to_mongo.ingest_orders scheduled__2025-12-25T05:29:00+00:00 [queued]>
+[2025-12-25T05:31:30.312+0000] {taskinstance.py:1087} INFO - Dependencies all met for <TaskInstance: ingest_streams_to_mongo.ingest_orders scheduled__2025-12-25T05:29:00+00:00 [queued]>
+[2025-12-25T05:31:30.312+0000] {taskinstance.py:1283} INFO - 
+--------------------------------------------------------------------------------
+[2025-12-25T05:31:30.312+0000] {taskinstance.py:1284} INFO - Starting attempt 1 of 3
+[2025-12-25T05:31:30.313+0000] {taskinstance.py:1285} INFO - 
+--------------------------------------------------------------------------------
+[2025-12-25T05:31:30.335+0000] {taskinstance.py:1304} INFO - Executing <Task(PythonOperator): ingest_orders> on 2025-12-25 05:29:00+00:00
+[2025-12-25T05:31:30.356+0000] {standard_task_runner.py:55} INFO - Started process 27930 to run task
+[2025-12-25T05:31:30.366+0000] {standard_task_runner.py:82} INFO - Running: ['***', 'tasks', 'run', 'ingest_streams_to_mongo', 'ingest_orders', 'scheduled__2025-12-25T05:29:00+00:00', '--job-id', '1943', '--raw', '--subdir', 'DAGS_FOLDER/dag_ingest_streams_to_mongo.py', '--cfg-path', '/tmp/tmpmum2h9yi']
+[2025-12-25T05:31:30.368+0000] {standard_task_runner.py:83} INFO - Job 1943: Subtask ingest_orders
+[2025-12-25T05:31:30.514+0000] {task_command.py:389} INFO - Running <TaskInstance: ingest_streams_to_mongo.ingest_orders scheduled__2025-12-25T05:29:00+00:00 [running]> on host de865afe45c0
+[2025-12-25T05:31:30.765+0000] {taskinstance.py:1513} INFO - Exporting the following env vars:
+AIRFLOW_CTX_DAG_OWNER=data-engineering
+AIRFLOW_CTX_DAG_ID=ingest_streams_to_mongo
+AIRFLOW_CTX_TASK_ID=ingest_orders
+AIRFLOW_CTX_EXECUTION_DATE=2025-12-25T05:29:00+00:00
+AIRFLOW_CTX_TRY_NUMBER=1
+AIRFLOW_CTX_DAG_RUN_ID=scheduled__2025-12-25T05:29:00+00:00
+[2025-12-25T05:31:30.777+0000] {conn.py:381} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: connecting to kafka:9092 [('172.19.0.13', 9092) IPv4]
+[2025-12-25T05:31:30.778+0000] {conn.py:1205} INFO - Probing node bootstrap-0 broker version
+[2025-12-25T05:31:30.781+0000] {conn.py:410} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: Connection complete.
+[2025-12-25T05:31:30.887+0000] {conn.py:1267} INFO - Broker version identified as 2.5.0
+[2025-12-25T05:31:30.887+0000] {conn.py:1269} INFO - Set configuration api_version=(2, 5, 0) to skip auto check_version requests on startup
+[2025-12-25T05:31:30.892+0000] {subscription_state.py:171} INFO - Updating subscribed topics to: ('orders_stream',)
+[2025-12-25T05:31:30.909+0000] {cluster.py:371} INFO - Group coordinator for mongo-ingest-orders is ('coordinator-1', 'kafka', 9092, None)
+[2025-12-25T05:31:30.910+0000] {base.py:694} INFO - Discovered coordinator coordinator-1 for group mongo-ingest-orders
+[2025-12-25T05:31:30.910+0000] {base.py:741} INFO - Starting new heartbeat thread
+[2025-12-25T05:31:30.911+0000] {consumer.py:349} INFO - Revoking previously assigned partitions () for group mongo-ingest-orders
+[2025-12-25T05:31:30.912+0000] {conn.py:381} INFO - <BrokerConnection node_id=coordinator-1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: connecting to kafka:9092 [('172.19.0.13', 9092) IPv4]
+[2025-12-25T05:31:30.913+0000] {conn.py:410} INFO - <BrokerConnection node_id=coordinator-1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: Connection complete.
+[2025-12-25T05:31:30.913+0000] {conn.py:919} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connected> [IPv4 ('172.19.0.13', 9092)]>: Closing connection. 
+[2025-12-25T05:31:31.015+0000] {base.py:450} INFO - (Re-)joining group mongo-ingest-orders
+[2025-12-25T05:31:34.019+0000] {base.py:522} INFO - Elected group leader -- performing partition assignments using range
+[2025-12-25T05:31:34.022+0000] {conn.py:381} INFO - <BrokerConnection node_id=1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: connecting to kafka:9092 [('172.19.0.13', 9092) IPv4]
+[2025-12-25T05:31:34.023+0000] {conn.py:410} INFO - <BrokerConnection node_id=1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: Connection complete.
+[2025-12-25T05:31:34.023+0000] {base.py:336} INFO - Successfully joined group mongo-ingest-orders with generation 775
+[2025-12-25T05:31:34.024+0000] {subscription_state.py:257} INFO - Updated partition assignment: [('orders_stream', 0)]
+[2025-12-25T05:31:34.024+0000] {consumer.py:246} INFO - Setting newly assigned partitions (('orders_stream', 0),) for group mongo-ingest-orders
+[2025-12-25T05:47:27.859+0000] {local_task_job.py:82} ERROR - Received SIGTERM. Terminating subprocesses
+[2025-12-25T05:47:27.861+0000] {process_utils.py:133} INFO - Sending Signals.SIGTERM to group 27930. PIDs of all processes in the group: [27930]
+[2025-12-25T05:47:27.862+0000] {process_utils.py:84} INFO - Sending the signal Signals.SIGTERM to group 27930
+[2025-12-25T05:47:27.862+0000] {taskinstance.py:1483} ERROR - Received SIGTERM. Terminating subprocesses.
+[2025-12-25T05:47:27.862+0000] {dag_ingest_streams_to_mongo.py:123} ERROR - ❌ Error: Task received SIGTERM signal
+[2025-12-25T05:47:27.891+0000] {taskinstance.py:1772} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.7/site-packages/airflow/operators/python.py", line 175, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.7/site-packages/airflow/operators/python.py", line 192, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py", line 110, in consume_orders_stream
+    for message in consumer:
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/consumer/group.py", line 1193, in __next__
+    return self.next_v2()
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/consumer/group.py", line 1201, in next_v2
+    return next(self._iterator)
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/consumer/group.py", line 1116, in _message_generator_v2
+    record_map = self.poll(timeout_ms=timeout_ms, update_offsets=False)
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/consumer/group.py", line 655, in poll
+    records = self._poll_once(remaining, max_records, update_offsets=update_offsets)
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/consumer/group.py", line 702, in _poll_once
+    self._client.poll(timeout_ms=timeout_ms)
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/client_async.py", line 602, in poll
+    self._poll(timeout / 1000)
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/client_async.py", line 634, in _poll
+    ready = self._selector.select(timeout)
+  File "/usr/local/lib/python3.7/selectors.py", line 468, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+  File "/home/airflow/.local/lib/python3.7/site-packages/airflow/models/taskinstance.py", line 1485, in signal_handler
+    raise AirflowException("Task received SIGTERM signal")
+airflow.exceptions.AirflowException: Task received SIGTERM signal
+[2025-12-25T05:47:27.902+0000] {taskinstance.py:1327} INFO - Marking task as UP_FOR_RETRY. dag_id=ingest_streams_to_mongo, task_id=ingest_orders, execution_date=20251225T052900, start_date=20251225T053130, end_date=20251225T054727
+[2025-12-25T05:47:27.928+0000] {standard_task_runner.py:105} ERROR - Failed to execute job 1943 for task ingest_orders (Task received SIGTERM signal; 27930)
+[2025-12-25T05:47:27.955+0000] {process_utils.py:79} INFO - Process psutil.Process(pid=27930, status='terminated', exitcode=1, started='05:31:30') (27930) terminated with exit code 1
+[2025-12-25T05:47:27.956+0000] {local_task_job.py:159} INFO - Task exited with return code 143
+[2025-12-25T05:47:27.999+0000] {taskinstance.py:2582} INFO - 0 downstream tasks scheduled from follow-on schedule check

@@ -1,0 +1,40 @@
+[2025-12-25T05:51:16.466+0000] {taskinstance.py:1087} INFO - Dependencies all met for <TaskInstance: spark_compute_kpis.compute_kpis_spark manual__2025-12-25T05:41:28+00:00 [queued]>
+[2025-12-25T05:51:16.478+0000] {taskinstance.py:1087} INFO - Dependencies all met for <TaskInstance: spark_compute_kpis.compute_kpis_spark manual__2025-12-25T05:41:28+00:00 [queued]>
+[2025-12-25T05:51:16.478+0000] {taskinstance.py:1283} INFO - 
+--------------------------------------------------------------------------------
+[2025-12-25T05:51:16.478+0000] {taskinstance.py:1284} INFO - Starting attempt 2 of 2
+[2025-12-25T05:51:16.478+0000] {taskinstance.py:1285} INFO - 
+--------------------------------------------------------------------------------
+[2025-12-25T05:51:16.497+0000] {taskinstance.py:1304} INFO - Executing <Task(PythonOperator): compute_kpis_spark> on 2025-12-25 05:41:28+00:00
+[2025-12-25T05:51:16.504+0000] {standard_task_runner.py:55} INFO - Started process 97 to run task
+[2025-12-25T05:51:16.508+0000] {standard_task_runner.py:82} INFO - Running: ['***', 'tasks', 'run', 'spark_compute_kpis', 'compute_kpis_spark', 'manual__2025-12-25T05:41:28+00:00', '--job-id', '1960', '--raw', '--subdir', 'DAGS_FOLDER/dag_spark_kpi_computation.py', '--cfg-path', '/tmp/tmpf5wgf1og']
+[2025-12-25T05:51:16.512+0000] {standard_task_runner.py:83} INFO - Job 1960: Subtask compute_kpis_spark
+[2025-12-25T05:51:16.632+0000] {task_command.py:389} INFO - Running <TaskInstance: spark_compute_kpis.compute_kpis_spark manual__2025-12-25T05:41:28+00:00 [running]> on host c7e42a23ea9f
+[2025-12-25T05:51:16.742+0000] {taskinstance.py:1513} INFO - Exporting the following env vars:
+AIRFLOW_CTX_DAG_OWNER=data-engineering
+AIRFLOW_CTX_DAG_ID=spark_compute_kpis
+AIRFLOW_CTX_TASK_ID=compute_kpis_spark
+AIRFLOW_CTX_EXECUTION_DATE=2025-12-25T05:41:28+00:00
+AIRFLOW_CTX_TRY_NUMBER=2
+AIRFLOW_CTX_DAG_RUN_ID=manual__2025-12-25T05:41:28+00:00
+[2025-12-25T05:51:16.789+0000] {dag_spark_kpi_computation.py:56} INFO - Spark job stdout: 
+[2025-12-25T05:51:16.790+0000] {dag_spark_kpi_computation.py:58} WARNING - Spark job stderr: Error response from daemon: client version 1.41 is too old. Minimum supported API version is 1.44, please upgrade your client to a newer version
+
+[2025-12-25T05:51:16.790+0000] {dag_spark_kpi_computation.py:61} ERROR - Spark job failed with exit code 1
+[2025-12-25T05:51:16.790+0000] {dag_spark_kpi_computation.py:71} ERROR - Error submitting Spark job: Spark job failed: Error response from daemon: client version 1.41 is too old. Minimum supported API version is 1.44, please upgrade your client to a newer version
+
+[2025-12-25T05:51:16.790+0000] {taskinstance.py:1772} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.7/site-packages/airflow/operators/python.py", line 175, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.7/site-packages/airflow/operators/python.py", line 192, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/home/airflow/gcs/dags/dag_spark_kpi_computation.py", line 62, in submit_spark_job
+    raise Exception(f"Spark job failed: {result.stderr}")
+Exception: Spark job failed: Error response from daemon: client version 1.41 is too old. Minimum supported API version is 1.44, please upgrade your client to a newer version
+
+[2025-12-25T05:51:16.813+0000] {taskinstance.py:1327} INFO - Marking task as FAILED. dag_id=spark_compute_kpis, task_id=compute_kpis_spark, execution_date=20251225T054128, start_date=20251225T055116, end_date=20251225T055116
+[2025-12-25T05:51:16.836+0000] {standard_task_runner.py:105} ERROR - Failed to execute job 1960 for task compute_kpis_spark (Spark job failed: Error response from daemon: client version 1.41 is too old. Minimum supported API version is 1.44, please upgrade your client to a newer version
+; 97)
+[2025-12-25T05:51:16.880+0000] {local_task_job.py:159} INFO - Task exited with return code 1
+[2025-12-25T05:51:16.917+0000] {taskinstance.py:2582} INFO - 0 downstream tasks scheduled from follow-on schedule check

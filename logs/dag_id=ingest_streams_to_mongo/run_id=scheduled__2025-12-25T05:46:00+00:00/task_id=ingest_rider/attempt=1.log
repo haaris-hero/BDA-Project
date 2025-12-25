@@ -1,0 +1,74 @@
+[2025-12-25T05:59:41.741+0000] {taskinstance.py:1087} INFO - Dependencies all met for <TaskInstance: ingest_streams_to_mongo.ingest_rider scheduled__2025-12-25T05:46:00+00:00 [queued]>
+[2025-12-25T05:59:41.753+0000] {taskinstance.py:1087} INFO - Dependencies all met for <TaskInstance: ingest_streams_to_mongo.ingest_rider scheduled__2025-12-25T05:46:00+00:00 [queued]>
+[2025-12-25T05:59:41.754+0000] {taskinstance.py:1283} INFO - 
+--------------------------------------------------------------------------------
+[2025-12-25T05:59:41.754+0000] {taskinstance.py:1284} INFO - Starting attempt 1 of 3
+[2025-12-25T05:59:41.754+0000] {taskinstance.py:1285} INFO - 
+--------------------------------------------------------------------------------
+[2025-12-25T05:59:41.773+0000] {taskinstance.py:1304} INFO - Executing <Task(PythonOperator): ingest_rider> on 2025-12-25 05:46:00+00:00
+[2025-12-25T05:59:41.782+0000] {standard_task_runner.py:55} INFO - Started process 248 to run task
+[2025-12-25T05:59:41.787+0000] {standard_task_runner.py:82} INFO - Running: ['***', 'tasks', 'run', 'ingest_streams_to_mongo', 'ingest_rider', 'scheduled__2025-12-25T05:46:00+00:00', '--job-id', '1966', '--raw', '--subdir', 'DAGS_FOLDER/dag_ingest_streams_to_mongo.py', '--cfg-path', '/tmp/tmpqd0ufquu']
+[2025-12-25T05:59:41.788+0000] {standard_task_runner.py:83} INFO - Job 1966: Subtask ingest_rider
+[2025-12-25T05:59:41.894+0000] {task_command.py:389} INFO - Running <TaskInstance: ingest_streams_to_mongo.ingest_rider scheduled__2025-12-25T05:46:00+00:00 [running]> on host c7e42a23ea9f
+[2025-12-25T05:59:42.014+0000] {taskinstance.py:1513} INFO - Exporting the following env vars:
+AIRFLOW_CTX_DAG_OWNER=data-engineering
+AIRFLOW_CTX_DAG_ID=ingest_streams_to_mongo
+AIRFLOW_CTX_TASK_ID=ingest_rider
+AIRFLOW_CTX_EXECUTION_DATE=2025-12-25T05:46:00+00:00
+AIRFLOW_CTX_TRY_NUMBER=1
+AIRFLOW_CTX_DAG_RUN_ID=scheduled__2025-12-25T05:46:00+00:00
+[2025-12-25T05:59:42.018+0000] {conn.py:381} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: connecting to kafka:9092 [('172.19.0.13', 9092) IPv4]
+[2025-12-25T05:59:42.019+0000] {conn.py:1205} INFO - Probing node bootstrap-0 broker version
+[2025-12-25T05:59:42.020+0000] {conn.py:410} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: Connection complete.
+[2025-12-25T05:59:42.124+0000] {conn.py:1267} INFO - Broker version identified as 2.5.0
+[2025-12-25T05:59:42.124+0000] {conn.py:1269} INFO - Set configuration api_version=(2, 5, 0) to skip auto check_version requests on startup
+[2025-12-25T05:59:42.126+0000] {subscription_state.py:171} INFO - Updating subscribed topics to: ('rider_stream',)
+[2025-12-25T05:59:42.138+0000] {cluster.py:371} INFO - Group coordinator for mongo-ingest-rider is ('coordinator-1', 'kafka', 9092, None)
+[2025-12-25T05:59:42.139+0000] {base.py:694} INFO - Discovered coordinator coordinator-1 for group mongo-ingest-rider
+[2025-12-25T05:59:42.139+0000] {base.py:741} INFO - Starting new heartbeat thread
+[2025-12-25T05:59:42.140+0000] {consumer.py:349} INFO - Revoking previously assigned partitions () for group mongo-ingest-rider
+[2025-12-25T05:59:42.141+0000] {conn.py:381} INFO - <BrokerConnection node_id=coordinator-1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: connecting to kafka:9092 [('172.19.0.13', 9092) IPv4]
+[2025-12-25T05:59:42.142+0000] {conn.py:410} INFO - <BrokerConnection node_id=coordinator-1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: Connection complete.
+[2025-12-25T05:59:42.142+0000] {conn.py:919} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connected> [IPv4 ('172.19.0.13', 9092)]>: Closing connection. 
+[2025-12-25T05:59:42.243+0000] {base.py:450} INFO - (Re-)joining group mongo-ingest-rider
+[2025-12-25T05:59:42.537+0000] {local_task_job.py:82} ERROR - Received SIGTERM. Terminating subprocesses
+[2025-12-25T05:59:42.538+0000] {process_utils.py:133} INFO - Sending Signals.SIGTERM to group 248. PIDs of all processes in the group: [248]
+[2025-12-25T05:59:42.538+0000] {process_utils.py:84} INFO - Sending the signal Signals.SIGTERM to group 248
+[2025-12-25T05:59:42.539+0000] {taskinstance.py:1483} ERROR - Received SIGTERM. Terminating subprocesses.
+[2025-12-25T05:59:42.539+0000] {dag_ingest_streams_to_mongo.py:89} ERROR - ❌ Error: Task received SIGTERM signal
+[2025-12-25T05:59:42.564+0000] {taskinstance.py:1772} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.7/site-packages/airflow/operators/python.py", line 175, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.7/site-packages/airflow/operators/python.py", line 192, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/home/airflow/gcs/dags/dag_ingest_streams_to_mongo.py", line 79, in consume_rider_stream
+    for message in consumer:
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/consumer/group.py", line 1193, in __next__
+    return self.next_v2()
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/consumer/group.py", line 1201, in next_v2
+    return next(self._iterator)
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/consumer/group.py", line 1116, in _message_generator_v2
+    record_map = self.poll(timeout_ms=timeout_ms, update_offsets=False)
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/consumer/group.py", line 655, in poll
+    records = self._poll_once(remaining, max_records, update_offsets=update_offsets)
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/consumer/group.py", line 675, in _poll_once
+    self._coordinator.poll()
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/coordinator/consumer.py", line 289, in poll
+    self.ensure_active_group()
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/coordinator/base.py", line 407, in ensure_active_group
+    self._client.poll(future=future)
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/client_async.py", line 602, in poll
+    self._poll(timeout / 1000)
+  File "/home/airflow/.local/lib/python3.7/site-packages/kafka/client_async.py", line 634, in _poll
+    ready = self._selector.select(timeout)
+  File "/usr/local/lib/python3.7/selectors.py", line 468, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+  File "/home/airflow/.local/lib/python3.7/site-packages/airflow/models/taskinstance.py", line 1485, in signal_handler
+    raise AirflowException("Task received SIGTERM signal")
+airflow.exceptions.AirflowException: Task received SIGTERM signal
+[2025-12-25T05:59:42.580+0000] {taskinstance.py:1327} INFO - Marking task as UP_FOR_RETRY. dag_id=ingest_streams_to_mongo, task_id=ingest_rider, execution_date=20251225T054600, start_date=20251225T055941, end_date=20251225T055942
+[2025-12-25T05:59:42.632+0000] {standard_task_runner.py:105} ERROR - Failed to execute job 1966 for task ingest_rider (Task received SIGTERM signal; 248)
+[2025-12-25T05:59:42.672+0000] {process_utils.py:79} INFO - Process psutil.Process(pid=248, status='terminated', exitcode=1, started='05:59:41') (248) terminated with exit code 1
+[2025-12-25T05:59:42.674+0000] {local_task_job.py:159} INFO - Task exited with return code 143
+[2025-12-25T05:59:43.088+0000] {taskinstance.py:2582} INFO - 0 downstream tasks scheduled from follow-on schedule check

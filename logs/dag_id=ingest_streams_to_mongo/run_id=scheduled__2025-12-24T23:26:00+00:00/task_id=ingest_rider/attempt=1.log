@@ -1,0 +1,49 @@
+[2025-12-24T23:27:16.298+0000] {taskinstance.py:1087} INFO - Dependencies all met for <TaskInstance: ingest_streams_to_mongo.ingest_rider scheduled__2025-12-24T23:26:00+00:00 [queued]>
+[2025-12-24T23:27:16.310+0000] {taskinstance.py:1087} INFO - Dependencies all met for <TaskInstance: ingest_streams_to_mongo.ingest_rider scheduled__2025-12-24T23:26:00+00:00 [queued]>
+[2025-12-24T23:27:16.310+0000] {taskinstance.py:1283} INFO - 
+--------------------------------------------------------------------------------
+[2025-12-24T23:27:16.310+0000] {taskinstance.py:1284} INFO - Starting attempt 1 of 3
+[2025-12-24T23:27:16.310+0000] {taskinstance.py:1285} INFO - 
+--------------------------------------------------------------------------------
+[2025-12-24T23:27:16.326+0000] {taskinstance.py:1304} INFO - Executing <Task(PythonOperator): ingest_rider> on 2025-12-24 23:26:00+00:00
+[2025-12-24T23:27:16.333+0000] {standard_task_runner.py:55} INFO - Started process 2910 to run task
+[2025-12-24T23:27:16.338+0000] {standard_task_runner.py:82} INFO - Running: ['***', 'tasks', 'run', 'ingest_streams_to_mongo', 'ingest_rider', 'scheduled__2025-12-24T23:26:00+00:00', '--job-id', '166', '--raw', '--subdir', 'DAGS_FOLDER/dag_ingest_streams_to_mongo.py', '--cfg-path', '/tmp/tmpw0u27wqw']
+[2025-12-24T23:27:16.339+0000] {standard_task_runner.py:83} INFO - Job 166: Subtask ingest_rider
+[2025-12-24T23:27:16.444+0000] {task_command.py:389} INFO - Running <TaskInstance: ingest_streams_to_mongo.ingest_rider scheduled__2025-12-24T23:26:00+00:00 [running]> on host de865afe45c0
+[2025-12-24T23:27:16.554+0000] {taskinstance.py:1513} INFO - Exporting the following env vars:
+AIRFLOW_CTX_DAG_OWNER=data-engineering
+AIRFLOW_CTX_DAG_ID=ingest_streams_to_mongo
+AIRFLOW_CTX_TASK_ID=ingest_rider
+AIRFLOW_CTX_EXECUTION_DATE=2025-12-24T23:26:00+00:00
+AIRFLOW_CTX_TRY_NUMBER=1
+AIRFLOW_CTX_DAG_RUN_ID=scheduled__2025-12-24T23:26:00+00:00
+[2025-12-24T23:27:16.558+0000] {conn.py:381} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: connecting to kafka:9092 [('172.19.0.13', 9092) IPv4]
+[2025-12-24T23:27:16.558+0000] {conn.py:1205} INFO - Probing node bootstrap-0 broker version
+[2025-12-24T23:27:16.559+0000] {conn.py:410} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: Connection complete.
+[2025-12-24T23:27:16.662+0000] {conn.py:1267} INFO - Broker version identified as 2.5.0
+[2025-12-24T23:27:16.662+0000] {conn.py:1269} INFO - Set configuration api_version=(2, 5, 0) to skip auto check_version requests on startup
+[2025-12-24T23:27:16.663+0000] {subscription_state.py:171} INFO - Updating subscribed topics to: ('rider_stream',)
+[2025-12-24T23:27:16.673+0000] {cluster.py:371} INFO - Group coordinator for mongo-ingest-rider is ('coordinator-1', 'kafka', 9092, None)
+[2025-12-24T23:27:16.674+0000] {base.py:694} INFO - Discovered coordinator coordinator-1 for group mongo-ingest-rider
+[2025-12-24T23:27:16.675+0000] {base.py:741} INFO - Starting new heartbeat thread
+[2025-12-24T23:27:16.676+0000] {consumer.py:349} INFO - Revoking previously assigned partitions () for group mongo-ingest-rider
+[2025-12-24T23:27:16.678+0000] {conn.py:381} INFO - <BrokerConnection node_id=coordinator-1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: connecting to kafka:9092 [('172.19.0.13', 9092) IPv4]
+[2025-12-24T23:27:16.678+0000] {conn.py:410} INFO - <BrokerConnection node_id=coordinator-1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: Connection complete.
+[2025-12-24T23:27:16.678+0000] {conn.py:919} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connected> [IPv4 ('172.19.0.13', 9092)]>: Closing connection. 
+[2025-12-24T23:27:16.779+0000] {base.py:450} INFO - (Re-)joining group mongo-ingest-rider
+[2025-12-24T23:27:19.783+0000] {base.py:522} INFO - Elected group leader -- performing partition assignments using range
+[2025-12-24T23:27:19.785+0000] {conn.py:381} INFO - <BrokerConnection node_id=1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: connecting to kafka:9092 [('172.19.0.13', 9092) IPv4]
+[2025-12-24T23:27:19.785+0000] {conn.py:410} INFO - <BrokerConnection node_id=1 host=kafka:9092 <connecting> [IPv4 ('172.19.0.13', 9092)]>: Connection complete.
+[2025-12-24T23:27:19.786+0000] {base.py:336} INFO - Successfully joined group mongo-ingest-rider with generation 65
+[2025-12-24T23:27:19.786+0000] {subscription_state.py:257} INFO - Updated partition assignment: [('rider_stream', 0)]
+[2025-12-24T23:27:19.786+0000] {consumer.py:246} INFO - Setting newly assigned partitions (('rider_stream', 0),) for group mongo-ingest-rider
+[2025-12-24T23:27:21.674+0000] {base.py:748} INFO - Stopping heartbeat thread
+[2025-12-24T23:27:21.675+0000] {base.py:773} INFO - Leaving consumer group (mongo-ingest-rider).
+[2025-12-24T23:27:21.677+0000] {conn.py:919} INFO - <BrokerConnection node_id=coordinator-1 host=kafka:9092 <connected> [IPv4 ('172.19.0.13', 9092)]>: Closing connection. 
+[2025-12-24T23:27:21.677+0000] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9092 <connected> [IPv4 ('172.19.0.13', 9092)]>: Closing connection. 
+[2025-12-24T23:27:21.677+0000] {future.py:79} ERROR - Fetch to node 1 failed: Cancelled: <BrokerConnection node_id=1 host=kafka:9092 <connected> [IPv4 ('172.19.0.13', 9092)]>
+[2025-12-24T23:27:21.678+0000] {dag_ingest_streams_to_mongo.py:85} INFO - ✅ Rider: 0 records inserted
+[2025-12-24T23:27:21.678+0000] {python.py:177} INFO - Done. Returned value was: 0
+[2025-12-24T23:27:21.715+0000] {taskinstance.py:1327} INFO - Marking task as SUCCESS. dag_id=ingest_streams_to_mongo, task_id=ingest_rider, execution_date=20251224T232600, start_date=20251224T232716, end_date=20251224T232721
+[2025-12-24T23:27:21.755+0000] {local_task_job.py:159} INFO - Task exited with return code 0
+[2025-12-24T23:27:21.780+0000] {taskinstance.py:2582} INFO - 0 downstream tasks scheduled from follow-on schedule check

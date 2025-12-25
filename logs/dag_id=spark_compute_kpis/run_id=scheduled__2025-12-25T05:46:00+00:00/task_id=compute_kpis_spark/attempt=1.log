@@ -1,0 +1,40 @@
+[2025-12-25T05:49:22.859+0000] {taskinstance.py:1087} INFO - Dependencies all met for <TaskInstance: spark_compute_kpis.compute_kpis_spark scheduled__2025-12-25T05:46:00+00:00 [queued]>
+[2025-12-25T05:49:22.874+0000] {taskinstance.py:1087} INFO - Dependencies all met for <TaskInstance: spark_compute_kpis.compute_kpis_spark scheduled__2025-12-25T05:46:00+00:00 [queued]>
+[2025-12-25T05:49:22.875+0000] {taskinstance.py:1283} INFO - 
+--------------------------------------------------------------------------------
+[2025-12-25T05:49:22.875+0000] {taskinstance.py:1284} INFO - Starting attempt 1 of 2
+[2025-12-25T05:49:22.875+0000] {taskinstance.py:1285} INFO - 
+--------------------------------------------------------------------------------
+[2025-12-25T05:49:22.892+0000] {taskinstance.py:1304} INFO - Executing <Task(PythonOperator): compute_kpis_spark> on 2025-12-25 05:46:00+00:00
+[2025-12-25T05:49:22.901+0000] {standard_task_runner.py:55} INFO - Started process 89 to run task
+[2025-12-25T05:49:22.906+0000] {standard_task_runner.py:82} INFO - Running: ['***', 'tasks', 'run', 'spark_compute_kpis', 'compute_kpis_spark', 'scheduled__2025-12-25T05:46:00+00:00', '--job-id', '1953', '--raw', '--subdir', 'DAGS_FOLDER/dag_spark_kpi_computation.py', '--cfg-path', '/tmp/tmphm4mzfle']
+[2025-12-25T05:49:22.908+0000] {standard_task_runner.py:83} INFO - Job 1953: Subtask compute_kpis_spark
+[2025-12-25T05:49:23.023+0000] {task_command.py:389} INFO - Running <TaskInstance: spark_compute_kpis.compute_kpis_spark scheduled__2025-12-25T05:46:00+00:00 [running]> on host a92dd0a3888a
+[2025-12-25T05:49:23.153+0000] {taskinstance.py:1513} INFO - Exporting the following env vars:
+AIRFLOW_CTX_DAG_OWNER=data-engineering
+AIRFLOW_CTX_DAG_ID=spark_compute_kpis
+AIRFLOW_CTX_TASK_ID=compute_kpis_spark
+AIRFLOW_CTX_EXECUTION_DATE=2025-12-25T05:46:00+00:00
+AIRFLOW_CTX_TRY_NUMBER=1
+AIRFLOW_CTX_DAG_RUN_ID=scheduled__2025-12-25T05:46:00+00:00
+[2025-12-25T05:49:23.207+0000] {dag_spark_kpi_computation.py:56} INFO - Spark job stdout: 
+[2025-12-25T05:49:23.207+0000] {dag_spark_kpi_computation.py:58} WARNING - Spark job stderr: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/spark-master/json": dial unix /var/run/docker.sock: connect: permission denied
+
+[2025-12-25T05:49:23.208+0000] {dag_spark_kpi_computation.py:61} ERROR - Spark job failed with exit code 1
+[2025-12-25T05:49:23.208+0000] {dag_spark_kpi_computation.py:71} ERROR - Error submitting Spark job: Spark job failed: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/spark-master/json": dial unix /var/run/docker.sock: connect: permission denied
+
+[2025-12-25T05:49:23.208+0000] {taskinstance.py:1772} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.7/site-packages/airflow/operators/python.py", line 175, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.7/site-packages/airflow/operators/python.py", line 192, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/home/airflow/gcs/dags/dag_spark_kpi_computation.py", line 62, in submit_spark_job
+    raise Exception(f"Spark job failed: {result.stderr}")
+Exception: Spark job failed: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/spark-master/json": dial unix /var/run/docker.sock: connect: permission denied
+
+[2025-12-25T05:49:23.230+0000] {taskinstance.py:1327} INFO - Marking task as UP_FOR_RETRY. dag_id=spark_compute_kpis, task_id=compute_kpis_spark, execution_date=20251225T054600, start_date=20251225T054922, end_date=20251225T054923
+[2025-12-25T05:49:23.259+0000] {standard_task_runner.py:105} ERROR - Failed to execute job 1953 for task compute_kpis_spark (Spark job failed: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/spark-master/json": dial unix /var/run/docker.sock: connect: permission denied
+; 89)
+[2025-12-25T05:49:23.280+0000] {local_task_job.py:159} INFO - Task exited with return code 1
+[2025-12-25T05:49:23.324+0000] {taskinstance.py:2582} INFO - 0 downstream tasks scheduled from follow-on schedule check
