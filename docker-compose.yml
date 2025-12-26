@@ -255,7 +255,6 @@ services:
       - superset-postgres
       - superset-db
     environment:
-      DATABASE_URL: postgresql://superset:superset@superset-postgres/superset
       SUPERSET_SECRET_KEY: "thesecretkeychangeme"
       SUPERSET_LOAD_EXAMPLES: "false"
       SQLALCHEMY_DATABASE_URI: postgresql://superset:superset@superset-db:5432/superset
