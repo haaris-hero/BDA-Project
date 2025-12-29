@@ -14,17 +14,24 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
     depends_on:
       - zookeeper
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_LOG_RETENTION_HOURS: 2
     ports:
       - "9092:9092"
+      - "29092:29092"
     networks:
       - food-delivery-net
     restart: unless-stopped
@@ -54,7 +61,7 @@ services:
       CORE_CONF_fs_defaultFS: hdfs://hadoop-namenode:8020
       CORE_CONF_hadoop_http_staticuser_user_name: root
     ports:
-      - "50070:50070"
+      - "50070:9870"
       - "8020:8020"
     volumes:
       - namenode_data:/hadoop/dfs/name
@@ -131,6 +138,39 @@ services:
     restart: unless-stopped
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
 
+  orders-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile.generator
+    command: python /app/scripts/generate_orders_stream.py
+    depends_on:
+      - kafka
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+
+  riders-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile.generator
+    command: python /app/scripts/generate_rider_stream.py
+    depends_on:
+      - kafka
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+
+  kitchen-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile.generator
+    command: python /app/scripts/generate_kitchen_stream.py
+    depends_on:
+      - kafka
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+
   airflow-postgres:
     image: postgres:13-alpine
     container_name: airflow-postgres
@@ -140,6 +180,7 @@ services:
       POSTGRES_DB: airflow
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - food-delivery-net
     restart: unless-stopped
@@ -158,6 +199,7 @@ services:
       airflow-postgres:
         condition: service_healthy
     environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__CORE__FERNET_KEY: "81HqDtbqAywKSOumSha3BqDTh0yrLiIkVlAJFQDm0Q="
@@ -171,20 +213,19 @@ services:
       - ./logs:/home/airflow/logs
       - ./plugins:/home/airflow/plugins
       - ./scripts:/opt/airflow/scripts
+      - ./spark_jobs:/opt/spark-apps
+      - ./spark:/opt/spark
+    group_add:
+      - "989"   # docker group id
     command: >
       bash -c "
       airflow db upgrade &&
-      airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com 2>/dev/null || true &&
+      airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com || true &&
       airflow webserver --port 8080
       "
     networks:
       - food-delivery-net
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   airflow-scheduler:
     build:
@@ -195,15 +236,24 @@ services:
       airflow-postgres:
         condition: service_healthy
     environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__CORE__FERNET_KEY: "81HqDtbqAywKSOumSha3BqDTh0yrLiIkVlAJFQDm0Q="
       AIRFLOW__CORE__DAGS_FOLDER: /home/airflow/gcs/dags
       AIRFLOW_HOME: /home/airflow
+      DOCKER_API_VERSION: "1.44"
     volumes:
       - ./dags:/home/airflow/gcs/dags
       - ./logs:/home/airflow/logs
       - ./plugins:/home/airflow/plugins
+      - ./spark_jobs:/opt/airflow/spark_jobs
+      - ./scripts:/opt/airflow/scripts
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./spark_jobs:/opt/spark-apps
+      - ./spark:/opt/spark
+    group_add:
+      - "989"   # docker group id
     command: airflow scheduler
     networks:
       - food-delivery-net
@@ -212,85 +262,46 @@ services:
   kafka-ingestion:
     build:
       context: .
-      dockerfile: Dockerfile.airflow
+      dockerfile: Dockerfile.ingestion
     volumes:
-    - ./scripts:/opt/airflow/scripts
+      - ./scripts:/opt/airflow/scripts
     command: python /opt/airflow/scripts/ingest_kafka_to_mongo.py
     depends_on:
       - kafka
       - mongo
-      - superset-postgres
     networks:
       - food-delivery-net
     restart: always
 
-  superset-postgres:
-    image: postgres:13-alpine
-    container_name: superset-postgres
-    environment:
-      POSTGRES_USER: superset
-      POSTGRES_PASSWORD: superset
-      POSTGRES_DB: superset
-    volumes:
-      - superset_postgres_data:/var/lib/postgresql/data
-    networks:
-      - food-delivery-net
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "superset"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  superset:
-    image: apache/superset:2.0.0
-    container_name: superset
-    depends_on:
-      - superset-postgres
-      - superset-db
-    environment:
-      DATABASE_URL: postgresql://superset:superset@superset-postgres/superset
-      SUPERSET_SECRET_KEY: "thesecretkeychangeme"
-      SUPERSET_LOAD_EXAMPLES: "false"
-      SQLALCHEMY_DATABASE_URI: postgresql://superset:superset@superset-db:5432/superset
+  streamlit-dashboard:
+    build: ./dashboard
+    container_name: streamlit-dashboard
     ports:
-      - "8090:8088"
-    volumes:
-      - ./superset_config.py:/app/pythonpath/superset_config.py:ro
-      - superset_home:/app/superset_home
-    command: >
-      bash -c "
-      superset db upgrade &&
-      superset fab create-admin --username admin --firstname Admin --lastname User --email admin@superset.com --password admin 2>/dev/null || true &&
-      superset run -p 8088 -h 0.0.0.0
-      "
+      - "8501:8501"
+    depends_on:
+      - mongo
     networks:
       - food-delivery-net
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8088/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
-  superset-db:
-    image: postgres:13
-    container_name: superset-metadata-db
-    environment:
-      POSTGRES_DB: superset
-      POSTGRES_USER: superset
-      POSTGRES_PASSWORD: superset
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
     volumes:
-      - superset_metadata:/var/lib/postgresql/data
+      - redis_data:/data
+    networks:
+      - food-delivery-net
+    restart: unless-stopped
+    command: redis-server --appendonly yes
 
 volumes:
   mongo_data:
   namenode_data:
   datanode_data:
   postgres_data:
-  superset_postgres_data:
-  superset_metadata:
-  superset_home:
+  redis_data:
 
 networks:
   food-delivery-net:

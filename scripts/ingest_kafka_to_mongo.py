@@ -6,8 +6,6 @@ from datetime import datetime
 from kafka import KafkaConsumer
 from pymongo import MongoClient
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, JSON
-from sqlalchemy.exc import SQLAlchemyError
-
 # -------------------------------------------------
 # Logging
 # -------------------------------------------------

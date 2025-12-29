@@ -1,26 +1,6 @@
-<<<<<<< HEAD
-# Airflow
 logs/
-airflow.cfg
-
-# Python
 __pycache__/
 *.pyc
-=======
-# Airflow logs
+.env
+.airflow/
 logs/
-airflow/logs/
-
-# Python cache
-__pycache__/
-*.pyc
-
-# Spark
-spark-warehouse/
-
-# Mongo
-data/db/
-
-# OS
-.DS_Store
->>>>>>> feature
