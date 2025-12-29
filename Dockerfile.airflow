@@ -1,6 +1,25 @@
-FROM apache/airflow:2.5.0
+FROM apache/airflow:2.5.0-python3.9
 
-# Set environment variable for additional pip requirements (compatible with Python 3.7)
-ENV _PIP_ADDITIONAL_REQUIREMENTS="kafka-python==2.0.2 pymongo==4.4.1 faker==15.3.0"
+# -------------------------------
+# Install Docker CLI (root only)
+# -------------------------------
+USER root
 
+RUN apt-get update && \
+    apt-get install -y docker.io && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# -------------------------------
+# Switch back to airflow user
+# -------------------------------
 USER airflow
+
+# -------------------------------
+# Install Python deps (Airflow-safe)
+# -------------------------------
+RUN pip install --no-cache-dir \
+    kafka-python==2.0.2 \
+    pymongo==4.4.1 \
+    faker==15.3.0 \
+    redis==5.0.1
