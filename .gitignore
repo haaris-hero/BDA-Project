@@ -1,0 +1,7 @@
+# Airflow
+logs/
+airflow.cfg
+
+# Python
+__pycache__/
+*.pyc
